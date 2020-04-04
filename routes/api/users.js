@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const { check, validationResult } = require('express-validator');
 
-//importing User model. The "../../" means going to folders up
+//importing User model. The "../../" means going two folders up
 const User = require('../../models/User');
 
 // @route    POST api/users
@@ -16,14 +16,12 @@ const User = require('../../models/User');
 router.post(
   '/',
   [
-    check('name', 'Name is required')
-      .not()
-      .isEmpty(),
+    check('name', 'Name is required').not().isEmpty(),
     check('email', 'Please include a valid email').isEmail(),
     check(
       'password',
       'Please enter a password with 5 or more characters'
-    ).isLength({ min: 5 })
+    ).isLength({ min: 5 }),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -32,6 +30,7 @@ router.post(
     }
 
     // using destructuring to pull response's body information in one array for convenience
+    // We dont have errors in the info sent, now we check if user (to be created) already exists
 
     const { name, email, password } = req.body;
 
@@ -45,23 +44,24 @@ router.post(
           .json({ errors: [{ msg: 'User already exists' }] });
       }
 
-      // Get user gravatar
+      // Get user gravatar .. user doesnt exist, so we are creating a new user
 
       const avatar = gravatar.url(email, { s: '200', r: 'pg', d: 'mm' });
       user = new User({ name, email, avatar, password });
 
       // Encrypt password
 
-      const salt = await bcrypt.genSalt(10);
+      const salt = await bcrypt.genSalt(10); // 10 is an encryption input to indicate level of encryption
 
       user.password = await bcrypt.hash(password, salt);
 
       await user.save();
 
-      // Return jsonwebtoken
+      // Return jsonwebtoken .. this is to keep the user logged in after successful registration
+      // Everytime a user logs in, we give him/her a login token that expires in some time (here it is 360000 milliseconds)
 
       const payload = {
-        user: { id: user.id }
+        user: { id: user.id },
       };
 
       jwt.sign(

@@ -29,7 +29,7 @@ router.post(
   '/',
   [
     check('email', 'Please include a valid email').isEmail(),
-    check('password', 'Password is required!').exists()
+    check('password', 'Password is required!').exists(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -53,7 +53,7 @@ router.post(
 
       //User exists, but need to check if passwords match
 
-      const isMatch = await bcrypt.compare(password, user.password); //password is the one entered by user, user.password is the encrypted password of that user
+      const isMatch = await bcrypt.compare(password, user.password); //"password" is the one entered by user, "user.password" is the encrypted password of that user
 
       if (!isMatch) {
         return res
@@ -64,7 +64,7 @@ router.post(
       // Return jsonwebtoken
 
       const payload = {
-        user: { id: user.id }
+        user: { id: user.id },
       };
 
       jwt.sign(
