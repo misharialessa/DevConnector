@@ -7,6 +7,7 @@ import {
   AUTH_ERROR
 } from './types';
 import setAuthToken from '../utils/setAuthToken';
+
 // Load User
 
 export const loadUser = () => async (dispatch) => {
