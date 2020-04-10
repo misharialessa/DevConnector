@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { setAlert } from './alert';
 
-import { PROFILE_ERROR, GET_PROFILE } from './types';
+import { PROFILE_ERROR, GET_PROFILE, UPDATE_PROFILE } from './types';
 
 //Get current user's profile
 
@@ -49,6 +49,73 @@ export const createProfile = (formData, history, edit = false) => async (
     if (!edit) {
       history.push('/dashboard');
     }
+  } catch (err) {
+    const errors = err.response.data.errors;
+
+    if (errors) {
+      errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+    }
+
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: { msg: err.response.statusText, status: err.response.status }
+    });
+  }
+};
+
+// Add experience
+
+export const addExperience = (formData, history) => async (dispatch) => {
+  try {
+    const config = {
+      headers: { 'Content-Type': 'application/json' }
+    };
+
+    //using 'put' because in the back end we setup the route as a 'put' route
+    const res = await axios.put('/api/profile/experience', formData, config);
+
+    //dispatching the GET_PROFILE because the 'create' request returns the same data as getProfile
+    dispatch({ type: UPDATE_PROFILE, payload: res.data });
+
+    //We want to set an alert to let the user know that the experience has been added
+
+    dispatch(setAlert('Experience Added', 'successs'));
+
+    // redirect to dashboard after successfully adding an experience
+    history.push('/dashboard');
+  } catch (err) {
+    const errors = err.response.data.errors;
+
+    if (errors) {
+      errors.forEach((error) => dispatch(setAlert(error.msg, 'danger')));
+    }
+
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: { msg: err.response.statusText, status: err.response.status }
+    });
+  }
+};
+
+// Add education
+
+export const addEducation = (formData, history) => async (dispatch) => {
+  try {
+    const config = {
+      headers: { 'Content-Type': 'application/json' }
+    };
+
+    const res = await axios.put('/api/profile/education', formData, config);
+
+    //dispatching the GET_PROFILE because the 'create' request returns the same data as getProfile
+    dispatch({ type: UPDATE_PROFILE, payload: res.data });
+
+    //We want to set an alert to let the user know that the experience has been added
+
+    dispatch(setAlert('Education Added', 'successs'));
+
+    // redirect to dashboard after successfully adding an experience
+    history.push('/dashboard');
   } catch (err) {
     const errors = err.response.data.errors;
 
