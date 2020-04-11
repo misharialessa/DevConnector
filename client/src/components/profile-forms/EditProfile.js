@@ -47,7 +47,7 @@ const EditProfile = ({
       youtube: loading || !profile.social ? '' : profile.social.youtube,
       instagram: loading || !profile.social ? '' : profile.social.instagram
     });
-  }, [loading]);
+  }, [loading, getCurrentProfile]);
 
   //without the [loading] 'condition' the setFormatData will keep loading. by adding the [loading], we are telling it only load the data only when 'loading' is true
 

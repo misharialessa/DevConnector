@@ -4,11 +4,33 @@ import { setAlert } from './alert';
 import {
   PROFILE_ERROR,
   GET_PROFILE,
+  GET_PROFILES,
   UPDATE_PROFILE,
   ACCOUNT_DELETED,
-  CLEAR_PROFILE
+  CLEAR_PROFILE,
+  GET_REPOS
 } from './types';
 import { set } from 'mongoose';
+
+// Get All Profiles
+
+export const getProfiles = () => async (dispatch) => {
+  //We want to prevent the current user's profile from appearing when we try to list all profiles
+  dispatch({ type: CLEAR_PROFILE });
+
+  try {
+    const res = await axios.get('/api/profile');
+    dispatch({
+      type: GET_PROFILES,
+      payload: res.data
+    });
+  } catch (err) {
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: { msg: err.response.statusText, status: err.response.status }
+    });
+  }
+};
 
 //Get current user's profile
 
@@ -24,6 +46,40 @@ export const getCurrentProfile = () => async (dispatch) => {
   } catch (err) {
     // Here, we want to dispatch a 'PRPFILE_ERROR" Action and set the payload to an object that contains "msg" as the text portion of the error and a "status" as the status of the response (300, 400, 500 etc.)
 
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: { msg: err.response.statusText, status: err.response.status }
+    });
+  }
+};
+
+// Get profile by id -- We are getting the profile by the USER's ID, NOT the profile id
+
+export const getProfileById = (userId) => async (dispatch) => {
+  try {
+    const res = await axios.get(`/api/profile/user/${userId}`);
+    dispatch({
+      type: GET_PROFILE,
+      payload: res.data
+    });
+  } catch (err) {
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: { msg: err.response.statusText, status: err.response.status }
+    });
+  }
+};
+
+// Get Github Repos. We are communicating with Github from the BACKEND through a request to 'api/profile/github'
+
+export const getGithubRepos = (username) => async (dispatch) => {
+  try {
+    const res = await axios.get(`/api/profile/github/${username}`);
+    dispatch({
+      type: GET_REPOS,
+      payload: res.data
+    });
+  } catch (err) {
     dispatch({
       type: PROFILE_ERROR,
       payload: { msg: err.response.statusText, status: err.response.status }
@@ -182,7 +238,7 @@ export const deleteEducation = (id) => async (dispatch) => {
 export const deleteAccount = () => async (dispatch) => {
   if (window.confirm('Are you sure? This action is PERMENANT!')) {
     try {
-      const res = await axios.delete('/api/profile');
+      await axios.delete('/api/profile');
 
       dispatch({ type: CLEAR_PROFILE });
       dispatch({ type: ACCOUNT_DELETED });
