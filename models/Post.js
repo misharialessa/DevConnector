@@ -4,7 +4,7 @@ const PostSchema = new Schema({
   // details of the post, including user, post content username (different from user which is the id) and user avatar
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'users'
+    ref: 'user'
   },
 
   text: {
@@ -28,7 +28,7 @@ const PostSchema = new Schema({
     {
       user: {
         type: Schema.Types.ObjectId,
-        ref: 'users'
+        ref: 'user'
       }
     }
   ],
@@ -38,7 +38,7 @@ const PostSchema = new Schema({
     {
       user: {
         type: Schema.Types.ObjectId,
-        ref: 'users'
+        ref: 'user'
       },
       text: {
         type: String,
